@@ -30,14 +30,23 @@ export default {
       if (!latitude || !longitude) return
       this.loading = true
       try {
+        const debugInfo = JSON.parse(localStorage.getItem('debugInfo'));
+
+        if(debugInfo) {
+          console.log("Using cached data:");
+          console.log(debugInfo);
+          this.weather = debugInfo;
+          return;
+        }
         const res = await fetch(`${API_BASE_URL}/weather/get/${latitude}/${longitude}`);
         if (res.ok) {
           const jsonResult = await res.json();
-          
+                    
           jsonResult.fetchedAt = new Date().toISOString();
           jsonResult.cityName = cityName;
-          
-          console.log(jsonResult);
+
+          // localStorage.setItem('debugInfo', JSON.stringify(jsonResult));
+
           this.weather = jsonResult;
         } else {
           this.weather = null

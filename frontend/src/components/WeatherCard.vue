@@ -1,10 +1,35 @@
 <template>
   <div
     v-if="weather"
-    class="max-w-4xl w-full text-black bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6 flex flex-col items-center"
+    class="max-w-2xl w-full text-black bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6 flex flex-col items-center"
   >
-    <h2 class="text-2xl font-bold mb-2 text-center">CityName</h2>
-    <h3 class="text-xl font-bold mb-1 text-center">Current:</h3>
+    <h2 class="text-2xl font-bold mb-2 text-center">{{ this.weather.cityName }}</h2>
+
+    <h3 class="text-xl font-bold mb-1">Today:</h3>
+    <div class="w-full flex justify-around">
+      <div id="today-temps">
+        <div class="flex items-center">
+          <!-- <img class="weather-icon h-6 w-6 mx-1 object-fit" src="">
+        <span class="font-semibold mx-1 mr-4">
+          ${weatherToday.code.description} [TODO] Add WMO icon
+        </span> -->
+        <span class="font-semibold text-lg mx-1">
+          {{ this.weather.current.temperature_2m }}°C
+        </span>
+        <div class="flex flex-col mx-1 text-m">
+          <span class="border-b border-gray-600">
+            {{ this.weather.daily.temperature_2m_min[0].toFixed(1) }}°C min
+          </span>
+          <span class="">
+            {{ this.weather.daily.temperature_2m_max[0].toFixed(1) }}°C max
+          </span>
+        </div>
+        </div>
+      </div>
+      <div id="today-rainWind">
+        💧 Precipitation: {{ this.weather.current.precipitation }}%
+      </div>
+    </div>
 
     <div class="flex items-center mb-3">
       <img

@@ -26,9 +26,12 @@
       </button>
     </div>
     <ul
-      v-if="showDropdown && suggestions.length > 0"
+      v-if="showDropdown"
       class="absolute left-0 top-full z-10 w-full text-black bg-white border rounded shadow-lg max-h-64 overflow-y-auto"
     >
+      <div v-if="suggestions.length <= 0">
+        <li class="p-2 text-gray-500">Start Typing to find your city</li>
+      </div>
       <li
         v-for="(city, index) in suggestions"
         :key="city.latitude + '^' + city.longitude"
@@ -60,12 +63,23 @@ export default {
         return;
       }
       try {
+        const debugInfo = JSON.parse(localStorage.getItem('debugSearchInfo'));
+
+        if(debugInfo) {
+          console.log("Using cached data:");
+          console.log(debugInfo);
+          this.suggestions = debugInfo;
+          return;
+        }
+
         const encodedCity = encodeURIComponent(this.cityQuery);
         
         const res = await fetch(`${API_BASE_URL}/weather/search/${encodedCity}`);
         
         if (res.ok) {
           const jsonResult = await res.json();
+          // localStorage.setItem('debugSearchInfo', JSON.stringify(jsonResult));
+
           this.suggestions = jsonResult;
         } else if (res.status === 404) {
           // no cities found
@@ -94,7 +108,7 @@ export default {
     },
     selectCity(city) {
       this.showDropdown = false;
-      this.$emit("search", city.latitude, city.longitude, $`${city.name}, ${ city.admin1 ? city.admin1 + ', ' : '' }${ city.country }`);
+      this.$emit("search", city.latitude, city.longitude, `${city.name}, ${ city.admin1 ? city.admin1 + ', ' : '' }${ city.country }`);
     },
     search() {
       if (this.suggestions.length === 0) return;
