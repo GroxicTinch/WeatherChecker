@@ -1,0 +1,52 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node / Vue.js
+node_modules/
+.DS_Store
+dist/
+dist-ssr/
+coverage/
+*.local
+
+/cypress/videos/
+/cypress/screenshots/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# C# / .NET
+# Build folders
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+.nuget/
