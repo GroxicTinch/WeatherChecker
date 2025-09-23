@@ -1,10 +1,9 @@
 <template>
-  <div class="h-full p-6 bg-stone-950 flex flex-col items-center rounded-lg">
+  <div class="h-full w-full p-6 bg-stone-950 flex flex-col items-center rounded-lg">
     <h1 class="text-3xl font-bold">Weather Checker</h1>
     <SearchBar class="mt-4" @search="fetchWeather" />
     <WeatherCard class="mt-4" :weather="weather" :loading="loading" @save="saveLocation" />
     <SavedLocations class="mt-4" :locations="locations" @select="fetchWeather" />
-
     <AlertModal/>
   </div>
 </template>
@@ -17,7 +16,7 @@ import SavedLocations from './components/SavedLocations.vue'
 import AlertModal from "./components/AlertModal.vue";
 import { showAlert } from './utils/alert.js';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import { API_BASE_URL } from './utils/constants.js';
 
 export default {
   components: { SearchBar, WeatherCard, SavedLocations, AlertModal },
@@ -27,23 +26,28 @@ export default {
     locations: []
   }),
   methods: {
-    async fetchWeather(city) {
-      if (!city) return
+    async fetchWeather(latitude, longitude, cityName) {
+      if (!latitude || !longitude) return
       this.loading = true
       try {
-        const res = await fetch(`${API_BASE_URL}/weather/${city}`)
+        const res = await fetch(`${API_BASE_URL}/weather/get/${latitude}/${longitude}`);
         if (res.ok) {
-          this.weather = await res.json()
-          alert("huh");
+          const jsonResult = await res.json();
+          
+          jsonResult.fetchedAt = new Date().toISOString();
+          jsonResult.cityName = cityName;
+          
+          console.log(jsonResult);
+          this.weather = jsonResult;
         } else {
           this.weather = null
-          showAlert("The API returned an unexpected response.", [
+          showAlert(`The API returned an unexpected response.\n${res}`, [
             {"Ok" : "#c66228ff"}
           ])
         }
       }
-      catch {
-        showAlert("There was an issue waiting for the API to respond.", [
+      catch(e) {
+        showAlert(`There was an issue waiting for the API to respond.\n${e}`, [
             {"Ok" : "#c66228ff"}
           ])
       }
