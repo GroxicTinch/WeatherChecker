@@ -44,6 +44,9 @@
       </li>
     </ul>
   </div>
+  <div class="w-full max-w-4xl text-white/60 text-right text-sm hover:text-white hover:underline">
+    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">Location data © OpenStreetMap contributors</a>
+  </div>
 </template>
 
 <script>
