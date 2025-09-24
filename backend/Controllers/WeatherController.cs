@@ -10,6 +10,7 @@ namespace backend.Controllers
   {
     private readonly string _geocodingBaseUrl = config["GeocodingApiBaseUrl"]
         ?? throw new Exception("Geocoding API base URL missing");
+
     private readonly string _weatherBaseUrl = config["WeatherApiBaseUrl"]
         ?? throw new Exception("Weather API base URL missing");
     private readonly HttpClient _httpClient = httpClientFactory.CreateClient();
@@ -22,20 +23,30 @@ namespace backend.Controllers
 
       try
       {
-        string url = $"{_geocodingBaseUrl}/search?name={city}&count=10&language=en&format=json";
+        string? _geocodingapiKey = config["GeocodingApi:ApiKey"];
 
-        var geoResponse = await _httpClient.GetFromJsonAsync<GeocodingApiResponse>(url);
+        if (string.IsNullOrWhiteSpace(_geocodingapiKey) || _geocodingapiKey == "YOUR_DEV_KEY_HERE")
+        {
+          _geocodingapiKey = Environment.GetEnvironmentVariable("GEOCODING_API_KEY");
+        }
 
-        if (geoResponse == null || geoResponse.Results.Count == 0)
+        if (string.IsNullOrWhiteSpace(_geocodingapiKey))
+        {
+          throw new Exception("Geocoding API key is not set in environment variables.");
+        }
+
+        string url = $"{_geocodingBaseUrl}/search?q={city}&api_key={_geocodingapiKey}";
+
+        var geoResponse = await _httpClient.GetFromJsonAsync<List<GeocodingResult>>(url);
+
+        if (geoResponse == null || geoResponse.Count == 0)
           return NotFound(new { message = "No cities found" });
 
-        var result = geoResponse.Results.Select(g => new
+        var result = geoResponse.Select(g => new
         {
-          g.Name,
-          g.Admin1,
-          g.Country,
-          g.Latitude,
-          g.Longitude
+          g.DisplayName,
+          g.Lat,
+          g.Lon
         }).ToList();
 
         return Ok(result);

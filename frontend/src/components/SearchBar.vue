@@ -36,11 +36,11 @@
       </div>
       <li
         v-for="(city, index) in suggestions"
-        :key="city.latitude + '^' + city.longitude"
+        :key="city.lat + '^' + city.lon"
         @click="selectCity(city)"
         class="p-2 hover:bg-blue-100 cursor-pointer"
       >
-        {{ city.name }}, {{ city.admin1 ? city.admin1 + ', ' : '' }}{{ city.country }}
+        {{ city.displayName }}
       </li>
     </ul>
   </div>
@@ -72,8 +72,7 @@ export default {
         const res = await fetch(`${API_BASE_URL}/weather/search/${encodedCity}`);
         
         if (res.ok) {
-          const jsonResult = await res.json();
-
+          const jsonResult = await res.json();          
           this.suggestions = jsonResult;
         } else if (res.status === 404) {
           // no cities found
@@ -103,7 +102,7 @@ export default {
     },
     selectCity(city) {
       this.showDropdown = false;
-      this.$emit("search", city.latitude, city.longitude, `${city.name}, ${ city.admin1 ? city.admin1 + ', ' : '' }${ city.country }`);
+      this.$emit("search", city.lat, city.lon, city.displayName);
     },
     search() {
       if (this.suggestions.length === 0) return;

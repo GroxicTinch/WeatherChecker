@@ -10,8 +10,8 @@
       </span>
     </div>
     <h3 class="text-xl font-bold mb-1">Today:</h3>
-    <div class="max-w-2xl w-full flex justify-around bg-stone-100 p-4 rounded-lg mb-4">
-      <div id="today-temps" class="flex text-center items-center">
+    <div class="max-w-2xl w-full flex max-sm:flex-col justify-around bg-stone-100 p-4 rounded-lg mb-4">
+      <div id="today-temps" class="flex max-sm:justify-around text-center items-center">
         <div class="flex items-center">
           <div>
             <img class="weather-icon size-20 mx-1 object-fit" :src="currentWeatherCode.icon" alt="Weather Icon"/>
@@ -35,7 +35,7 @@
           </div>
         </div>
       </div>
-      <div id="today-rainWind" class="flex flex-col text-stone-600">
+      <div id="today-rainWind" class="flex flex max-sm:justify-around max-sm:mt-4 text-stone-600">
         💧 Precipitation: {{ this.weather.current.precipitation }}%<br/>
         🔆 UV Max: {{ this.weather.daily.uv_index_max[0].toFixed(1) }}<br/>
         💨 Wind Gusts: {{ this.weather.current.wind_gusts_10m.toFixed(1) }}km/h<br/>
@@ -44,12 +44,13 @@
     </div>
     <div
       v-scroll-horizontal
-      class="w-full flex justify-around bg-stone-100 p-4 rounded-lg mb-4 overflow-x-auto"
+      class="w-full max-sm:w-[200px] flex max-sm:flex-col justify-around bg-stone-100 p-4 rounded-lg mb-4 overflow-x-auto"
     >
       <div v-for="(day, dayIndex) in dailyWeather"
         :key="dayIndex"
-        class="flex flex-col items-center mx-2 min-w-[110px]"
+        class="flex flex-col items-center mx-2 max-sm:mx-auto sm:min-w-[110px]"
       >
+        <hr v-if="dayIndex > 0" class="sm:hidden border-t border-1 border-gray-300 w-full my-2">
         <span class="font-semibold text-lg">
           {{day.date}}
         </span>

@@ -5,13 +5,13 @@
       <ul>
         <li v-for="loc in locations" :key="loc" class="flex justify-between rounded my-2 p-4 bg-stone-100 hover:bg-white flex parent group">
           <button
-            class="cursor-pointer"
+            class="flex-1 cursor-pointer text-left"
             @click="$emit('select', loc.latitude, loc.longitude, loc.cityName)"
           >
             {{ loc.cityName }}
           </button>
           <button
-            class="ml-2 text-red-500 cursor-pointer parent group-hover:opacity-100 opacity-0"
+            class="ml-2 text-red-500 cursor-pointer opacity-100"
             @click="$emit('delete', loc.latitude, loc.longitude)"
           >
             ❌
