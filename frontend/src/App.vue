@@ -1,9 +1,9 @@
 <template>
-  <div class="h-full w-full p-6 bg-stone-950 flex flex-col items-center rounded-lg">
-    <h1 class="text-3xl font-bold">Weather Checker</h1>
+  <div class="h-full w-full p-6 bg-stone-900 flex flex-col items-center rounded-lg">
+    <h1 class="text-white text-3xl font-bold">Weather Checker</h1>
     <SearchBar class="mt-4" @search="fetchWeather" />
     <WeatherCard class="mt-4" :weather="weather" :loading="loading" @save="saveLocation" />
-    <SavedLocations class="mt-4" :locations="locations" @select="fetchWeather" />
+    <SavedLocations class="mt-4" :locations="locations" @select="fetchWeather" @delete="removeLocation"/>
     <AlertModal/>
   </div>
 </template>
@@ -30,22 +30,12 @@ export default {
       if (!latitude || !longitude) return
       this.loading = true
       try {
-        const debugInfo = JSON.parse(localStorage.getItem('debugInfo'));
-
-        if(debugInfo) {
-          console.log("Using cached data:");
-          console.log(debugInfo);
-          this.weather = debugInfo;
-          return;
-        }
         const res = await fetch(`${API_BASE_URL}/weather/get/${latitude}/${longitude}`);
         if (res.ok) {
           const jsonResult = await res.json();
                     
           jsonResult.fetchedAt = new Date().toISOString();
           jsonResult.cityName = cityName;
-
-          // localStorage.setItem('debugInfo', JSON.stringify(jsonResult));
 
           this.weather = jsonResult;
         } else {
@@ -64,11 +54,21 @@ export default {
         this.loading = false
       }
     },
-    saveLocation(city) {
-      if (!this.locations.includes(city)) {
-        this.locations.push(city)
+    saveLocation(latitude, longitude, cityName) {
+      const exists = this.locations.some(loc =>
+        loc.latitude === latitude && loc.longitude === longitude
+      );
+      const cityObject = { latitude, longitude, cityName };
+      if (!exists) {
+        this.locations.push(cityObject)
         localStorage.setItem('savedLocations', JSON.stringify(this.locations))
       }
+    },
+    removeLocation(latitude, longitude) {
+      this.locations = this.locations.filter(
+        loc => loc.latitude !== latitude || loc.longitude !== longitude
+      );
+      localStorage.setItem('savedLocations', JSON.stringify(this.locations));
     },
     loadSavedLocations() {
       const saved = localStorage.getItem('savedLocations')

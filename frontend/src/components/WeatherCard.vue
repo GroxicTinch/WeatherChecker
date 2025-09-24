@@ -1,69 +1,117 @@
 <template>
   <div
-    v-if="weather"
-    class="max-w-2xl w-full text-black bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6 flex flex-col items-center"
+    v-if="weather && !loading"
+    class="max-w-5xl w-full text-black bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6 flex flex-col items-center border-4 border-transparent"
   >
-    <h2 class="text-2xl font-bold mb-2 text-center">{{ this.weather.cityName }}</h2>
-
+    <div class="parent group">
+      <h2 class="text-2xl font-bold mb-2 text-center">{{ this.weather.cityName }}</h2>
+      <span class="tooltip absolute hidden bg-white group-hover:block border-1 border-stone-200 p-2 rounded text-sm max-w-xs truncate z-10 pointer-events-none">
+        Lat: {{ this.weather.latitude }}, Lon: {{ this.weather.longitude }}
+      </span>
+    </div>
     <h3 class="text-xl font-bold mb-1">Today:</h3>
-    <div class="w-full flex justify-around">
-      <div id="today-temps">
+    <div class="max-w-2xl w-full flex justify-around bg-stone-100 p-4 rounded-lg mb-4">
+      <div id="today-temps" class="flex text-center items-center">
         <div class="flex items-center">
-          <!-- <img class="weather-icon h-6 w-6 mx-1 object-fit" src="">
-        <span class="font-semibold mx-1 mr-4">
-          ${weatherToday.code.description} [TODO] Add WMO icon
-        </span> -->
-        <span class="font-semibold text-lg mx-1">
-          {{ this.weather.current.temperature_2m }}°C
+          <div>
+            <img class="weather-icon size-20 mx-1 object-fit" :src="currentWeatherCode.icon" alt="Weather Icon"/>
+            <span>
+              {{ currentWeatherCode.description }}
+            </span>
+          </div>
+          <span class="font-semibold text-lg mx-4 parent group relative">
+            {{ this.weather.current.temperature_2m }}°C
+            <span class="tooltip absolute hidden bg-white group-hover:block border-1 border-stone-200 p-2 rounded text-sm max-w-xs truncate z-10 pointer-events-none">
+              Feels like {{ this.weather.current.apparent_temperature }}°C
+            </span>
+          </span>
+          <div class="flex flex-col mx-1 text-m">
+            <span class="border-b border-gray-600">
+              {{ this.weather.daily.temperature_2m_min[0].toFixed(0) }}°C min
+            </span>
+            <span class="">
+              {{ this.weather.daily.temperature_2m_max[0].toFixed(0) }}°C max
+            </span>
+          </div>
+        </div>
+      </div>
+      <div id="today-rainWind" class="flex flex-col text-stone-600">
+        💧 Precipitation: {{ this.weather.current.precipitation }}%<br/>
+        🔆 UV Max: {{ this.weather.daily.uv_index_max[0].toFixed(1) }}<br/>
+        💨 Wind Gusts: {{ this.weather.current.wind_gusts_10m.toFixed(1) }}km/h<br/>
+        🍃 Wind Speed: {{ this.weather.current.wind_speed_10m.toFixed(1) }}km/h<br/>
+      </div>
+    </div>
+    <div
+      v-scroll-horizontal
+      class="w-full flex justify-around bg-stone-100 p-4 rounded-lg mb-4 overflow-x-auto"
+    >
+      <div v-for="(day, dayIndex) in dailyWeather"
+        :key="dayIndex"
+        class="flex flex-col items-center mx-2 min-w-[110px]"
+      >
+        <span class="font-semibold text-lg">
+          {{day.date}}
         </span>
-        <div class="flex flex-col mx-1 text-m">
-          <span class="border-b border-gray-600">
-            {{ this.weather.daily.temperature_2m_min[0].toFixed(1) }}°C min
+        <span class="group relative parent">
+          <span>
+            {{ day.maxTemp?.toFixed(0) }}°
           </span>
-          <span class="">
-            {{ this.weather.daily.temperature_2m_max[0].toFixed(1) }}°C max
+          <span class="text-black/60">
+            {{ day.minTemp?.toFixed(0) }}°
+          </span>
+          <span class="tooltip absolute hidden bg-white group-hover:block border-1 border-stone-200 p-2 rounded text-sm max-w-xs truncate z-10 pointer-events-none">
+            Feels like<br/>
+            {{ day.maxApparentTemp?.toFixed(0) }}°C Max<br/>
+            {{ day.minApparentTemp?.toFixed(0) }}°C Min
+          </span>
+        </span>
+        <div class="flex flex-col text-center items-center mx-auto font-semibold my-2">
+          <img class="weather-icon size-15 mx-1 object-fit" :src="day.code.icon" alt="Weather Icon"/>
+          <span>
+            {{ day.code.description }}
           </span>
         </div>
+        <div class="flex justify-between w-full">
+          <span>💧{{ day.precip }}%</span>
+          <span>🔆{{ day.uv.toFixed(1) }}</span>
+        </div>
+        <div class="flex justify-between w-full">
+          <span>💨{{ this.weather.current.wind_gusts_10m.toFixed(1) }}</span>
+          <span>🍃{{ this.weather.current.wind_speed_10m.toFixed(1) }}</span>
         </div>
       </div>
-      <div id="today-rainWind">
-        💧 Precipitation: {{ this.weather.current.precipitation }}%
-      </div>
     </div>
-
-    <div class="flex items-center mb-3">
-      <img
-        v-if="this.weather.icon"
-        :src="`http://openweathermap.org/img/wn/${this.weather.latitude}@2x.png`"
-        alt="Weather Icon"
-        class="w-16 h-16 mr-4"
-      />
-      <p class="text-3xl font-semibold">{{ Math.round(this.weather.latitude) }}°C</p>
-    </div>
-
-    <p class="capitalize mb-4 text-gray-700 text-center">
-      {{ this.weather.latitude }}
-    </p>
 
     <button
-      @click="$emit('save', this.weather.latitude)"
-      class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+      @click="$emit('save', this.weather.latitude, this.weather.longitude, this.weather.cityName)"
+      class="bg-green-700 text-white px-4 py-2 rounded hover:bg-green-600 transition cursor-pointer"
     >
       Save Location
     </button>
   </div>
 
-  <div v-else-if="loading" class="text-black font-bold max-w-4xl w-full bg-white/80 rounded-lg shadow-md p-6 mb-6 text-center">
-    Loading...
-  </div>
-
-  <div v-else class="max-w-4xl w-full bg-white/80 rounded-lg shadow-md p-6 mb-6 text-center text-gray-500">
-    Search a city to see the weather
+  <div
+    v-else
+    :class="{'gradient-border': loading}"
+    class="max-w-5xl w-full bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6 flex flex-col items-center text-gray-500 border-4 border-transparent"
+  >
+    <span v-if="loading">Loading...</span>
+    <span v-else>Search a city to see the weather</span>
+    <div class="flex h-[545px] text-9xl items-center text-black/30">
+     😶‍🌫️
+    </div>
   </div>
 </template>
 
 <script>
+import scrollHorizontal from "../directives/scrollHorizontal.js";
+import { wmoCode } from '../utils/wmoCodes.js';
+
 export default {
+  directives: {
+    scrollHorizontal
+  },
   props: {
     weather: Object,
     loading: {
@@ -71,6 +119,31 @@ export default {
       default: false
     }
   },
-  emits: ['save']
+  emits: ['save'],
+  computed: {
+    currentWeatherCode() {
+      return wmoCode(this.weather?.current?.weather_code);
+    },
+    dailyWeather() {
+      if (!this.weather?.daily) return [];
+      
+      const daily = this.weather.daily;
+      const length = daily.time.length || 0;
+
+      return Array.from({ length }, (_, index) => ({
+        dayIndex: index,
+        date: new Date(daily.time?.[index] * 1000).toLocaleDateString('en-US', { weekday: 'short'}),
+        code: wmoCode(daily.weather_code?.[index]) ?? null,
+        maxTemp: daily.temperature_2m_max?.[index] ?? null,
+        minTemp: daily.temperature_2m_min?.[index] ?? null,
+        maxApparentTemp: daily.apparent_temperature_max?.[index] ?? null,
+        minApparentTemp: daily.apparent_temperature_min?.[index] ?? null,
+        precip: daily.precipitation_probability_max?.[index] ?? null,
+        uv: daily.uv_index_max?.[index] ?? null,
+        gusts: daily.wind_gusts_10m_max?.[index] ?? null,
+        windSpeed: daily.wind_speed_10m_max?.[index] ?? null
+      }));
+    }
+  }
 }
 </script>

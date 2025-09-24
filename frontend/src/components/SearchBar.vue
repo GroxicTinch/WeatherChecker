@@ -1,5 +1,5 @@
 <template>
-  <div ref="wrapper" class="flex w-full max-w-4xl relative">
+  <div ref="wrapper" :class="{'gradient-border': searching}" class="flex w-full max-w-4xl relative rounded-lg border-4 border-transparent">
     <input
       type="text"
       v-model="cityQuery"
@@ -14,7 +14,8 @@
         @click="search"
         class="w-16 p-4 text-black text-lg bg-stone-200 hover:bg-stone-300 transition cursor-pointer"
       >
-        🔍
+        <div v-if="!searching">🔍</div>
+        <div v-if="searching">🔃</div>
       </button>
     </div>
     <div class="flex items-center">
@@ -30,7 +31,8 @@
       class="absolute left-0 top-full z-10 w-full text-black bg-white border rounded shadow-lg max-h-64 overflow-y-auto"
     >
       <div v-if="suggestions.length <= 0">
-        <li class="p-2 text-gray-500">Start Typing to find your city</li>
+        <li v-if="!searching"class="p-2 text-gray-500">Start Typing to find your city</li>
+        <li v-if="searching"class="p-2 text-gray-500">Searching.....</li>
       </div>
       <li
         v-for="(city, index) in suggestions"
@@ -54,6 +56,7 @@ export default {
       cityQuery: "",
       suggestions: [],
       showDropdown: false,
+      searching: false,
     }
   ),
   methods: {
@@ -62,23 +65,14 @@ export default {
         this.suggestions = [];
         return;
       }
+      this.searching = true;
       try {
-        const debugInfo = JSON.parse(localStorage.getItem('debugSearchInfo'));
-
-        if(debugInfo) {
-          console.log("Using cached data:");
-          console.log(debugInfo);
-          this.suggestions = debugInfo;
-          return;
-        }
-
         const encodedCity = encodeURIComponent(this.cityQuery);
         
         const res = await fetch(`${API_BASE_URL}/weather/search/${encodedCity}`);
         
         if (res.ok) {
           const jsonResult = await res.json();
-          // localStorage.setItem('debugSearchInfo', JSON.stringify(jsonResult));
 
           this.suggestions = jsonResult;
         } else if (res.status === 404) {
@@ -92,6 +86,7 @@ export default {
         console.error(err);
         this.suggestions = [];
       }
+      this.searching = false;
     },
     async onEnter() {
       await this.fetchSuggestions();
