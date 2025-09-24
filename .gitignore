@@ -50,3 +50,6 @@ out/
 *.snupkg
 packages/
 .nuget/
+
+# Ignore so that API keys are not exposed.
+backend/appsettings.Development.json
