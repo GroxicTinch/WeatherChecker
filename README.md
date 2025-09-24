@@ -16,3 +16,14 @@ The app fetches:
 - Search for cities with auto-complete suggestions.
 - View daily and current weather.
 - Save favorite locations locally(browser storage).
+
+## Credits
+
+- Weather Data: [Open-Meteo API](https://open-meteo.com/en/docs)
+- Geocoding API: [geocode.maps.co](https://geocode.maps.co/)
+- Geodata: [© OpenStreetMap contributors](https://www.openstreetmap.org/copyright)
+- Weather Icons & WMO Codes: [Leftium/weather-sense](https://github.com/Leftium/weather-sense)
+
+## License
+
+This project is MIT licensed. Please ensure you do not commit your API key to any public repository.
