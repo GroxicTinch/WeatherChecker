@@ -60,7 +60,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="isVisible" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  <div v-show="isVisible" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
     <div class="bg-gray-800 text-white p-6 rounded-lg shadow-lg max-w-md w-full">
       <div class="mb-4">{{ promptText }}</div>
 
