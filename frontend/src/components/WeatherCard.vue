@@ -90,6 +90,9 @@
     >
       Save Location
     </button>
+    <div class="absolute bottom-8 right-8 text-black/60 text-right text-sm hover:text-black hover:underline">
+      <a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">Weather data available by Open-Meteo API</a>
+    </div>
   </div>
 
   <div
