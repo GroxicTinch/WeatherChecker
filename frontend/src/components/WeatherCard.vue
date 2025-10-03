@@ -4,7 +4,9 @@
     class="max-w-5xl w-full text-black bg-white/90 backdrop-blur-sm rounded-lg shadow-md p-6 mb-6 flex flex-col items-center border-4 border-transparent"
   >
     <div class="parent group">
-      <h2 class="text-2xl font-bold mb-2 text-center">{{ this.weather.cityName }}</h2>
+      <h2 class="text-2xl font-bold mb-2 text-center">{{ this.weather.customName || this.weather.cityName }}</h2>
+      <h3 v-show="this.weather.customName && this.weather.customName != this.weather.cityName" class="text-1xl font-bold mb-2 text-stone-600 text-center">{{ this.weather.cityName }}</h3>
+
       <span class="tooltip absolute hidden bg-white group-hover:block border-1 border-stone-200 p-2 rounded text-sm max-w-xs truncate z-10 pointer-events-none">
         Lat: {{ this.weather.latitude }}, Lon: {{ this.weather.longitude }}
       </span>
@@ -85,7 +87,7 @@
     </div>
 
     <button
-      @click="$emit('save', this.weather.latitude, this.weather.longitude, this.weather.cityName)"
+      @click="$emit('save', {latitude: this.weather.latitude, longitude: this.weather.longitude,cityName: this.weather.cityName, customName: this.weather.customName || ''}, this.weather.longitude, this.weather.cityName)"
       class="bg-green-700 text-white px-4 py-2 rounded hover:bg-green-600 transition cursor-pointer"
     >
       Save Location

@@ -3,7 +3,7 @@
     <h1 class="text-white text-3xl font-bold">Weather Checker</h1>
     <SearchBar class="mt-4" @search="fetchWeather" />
     <WeatherCard class="mt-4" :weather="weather" :loading="loading" @save="saveLocation" />
-    <SavedLocations class="mt-4" :locations="locations" @select="fetchWeather" @delete="removeLocation"/>
+    <SavedLocations class="mt-4" :locations="locations" @select="fetchWeather" @changeName="changeLocationName" @delete="removeLocation"/>
     <AlertModal/>
   </div>
 </template>
@@ -26,16 +26,17 @@ export default {
     locations: []
   }),
   methods: {
-    async fetchWeather(latitude, longitude, cityName) {
-      if (!latitude || !longitude) return
+    async fetchWeather(cityObject) {
+      if (!cityObject || !cityObject.latitude || !cityObject.longitude) return
       this.loading = true
       try {
-        const res = await fetch(`${API_BASE_URL}/weather/get/${latitude}/${longitude}`);
+        const res = await fetch(`${API_BASE_URL}/weather/get/${cityObject.latitude}/${cityObject.longitude}`);
         if (res.ok) {
           const jsonResult = await res.json();
-                    
+
           jsonResult.fetchedAt = new Date().toISOString();
-          jsonResult.cityName = cityName;
+          jsonResult.cityName = cityObject.cityName;
+          jsonResult.customName = cityObject.customName;
 
           this.weather = jsonResult;
         } else {
@@ -54,19 +55,51 @@ export default {
         this.loading = false
       }
     },
-    saveLocation(latitude, longitude, cityName) {
+    saveLocation(cityObject) {
+      if (!cityObject || !cityObject.latitude || !cityObject.longitude) return
       const exists = this.locations.some(loc =>
-        loc.latitude === latitude && loc.longitude === longitude
+        loc.latitude === cityObject.latitude && loc.longitude === cityObject.longitude
       );
-      const cityObject = { latitude, longitude, cityName };
       if (!exists) {
         this.locations.push(cityObject)
         localStorage.setItem('savedLocations', JSON.stringify(this.locations))
       }
     },
-    removeLocation(latitude, longitude) {
+    changeLocationName(cityObject) {
+      if (!cityObject || !cityObject.latitude || !cityObject.longitude) return
+      const index = this.locations.findIndex(loc =>
+        loc.latitude == cityObject.latitude && loc.longitude == cityObject.longitude
+      );
+      if (index !== -1) {
+        const alertButtons = [
+          {
+            "Submit": "#00af37ff"
+          },
+          {
+            "Remove Custom Name": "#950000ff"
+          },
+          {
+            "Cancel": "#c66228ff"
+          }
+        ];
+        showAlert("Enter the new saved location name:", alertButtons, true, cityObject.customName || cityObject.cityName)
+        .then(result => {
+          if(result.choice === 0) { // Submit
+            this.locations[index].customName = result.input;
+            localStorage.setItem('savedLocations', JSON.stringify(this.locations));
+          } else if(result.choice === 1) { // Remove Custom Name
+            delete this.locations[index].customName;
+            localStorage.setItem('savedLocations', JSON.stringify(this.locations));
+          }
+        });
+      } else {
+        console.error("Location not found for renaming");
+      }
+    },
+    removeLocation(cityObject) {
+      if (!cityObject || !cityObject.latitude || !cityObject.longitude) return
       this.locations = this.locations.filter(
-        loc => loc.latitude !== latitude || loc.longitude !== longitude
+        loc => loc.latitude !== cityObject.latitude || loc.longitude !== cityObject.longitude
       );
       localStorage.setItem('savedLocations', JSON.stringify(this.locations));
     },

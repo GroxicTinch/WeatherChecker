@@ -6,13 +6,19 @@
         <li v-for="loc in locations" :key="loc" class="flex justify-between rounded my-2 p-4 bg-stone-100 hover:bg-white flex parent group">
           <button
             class="flex-1 cursor-pointer text-left"
-            @click="$emit('select', loc.latitude, loc.longitude, loc.cityName)"
+            @click="$emit('select', {latitude: loc.latitude,longitude: loc.longitude,cityName: loc.cityName, customName: loc.customName || ''})"
           >
-            {{ loc.cityName }}
+            {{ loc.customName ? loc.customName : loc.cityName }}
           </button>
           <button
             class="ml-2 text-red-500 cursor-pointer opacity-100"
-            @click="$emit('delete', loc.latitude, loc.longitude)"
+            @click="$emit('changeName', {latitude: loc.latitude,longitude: loc.longitude,cityName: loc.cityName, customName: loc.customName || ''})"
+          >
+            ✏️
+          </button>
+          <button
+            class="ml-2 text-red-500 cursor-pointer opacity-100"
+            @click="$emit('delete', {latitude: loc.latitude,longitude: loc.longitude})"
           >
             ❌
           </button>

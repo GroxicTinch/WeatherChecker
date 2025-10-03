@@ -146,7 +146,12 @@ export default {
     selectCity(city) {
       this.addToRecentSearches(this.cityQuery);
       this.showDropdown = false;
-      this.$emit("search", city.lat, city.lon, city.displayName);
+      const cityObject = {
+        latitude: city.lat,
+        longitude: city.lon,
+        cityName: city.displayName,
+      };
+      this.$emit("search", cityObject);
     },
     search() {
       if (this.suggestions.length === 0) return;
